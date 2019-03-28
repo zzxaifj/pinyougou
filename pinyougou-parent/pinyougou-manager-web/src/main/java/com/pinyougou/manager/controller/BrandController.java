@@ -107,7 +107,7 @@ public class BrandController {
 	 * @return PageResult
 	 */
 	@RequestMapping("/search")
-	public PageResult search(@RequestBody TbBrand tbBrand ,int pageNum,int pageSize) {
-		return brandService.search(tbBrand, pageNum, pageSize);
+	public PageResult search(@RequestBody TbBrand tbBrand ,int page,int rows) {
+		return brandService.search(tbBrand, page, rows);
 	}
 }

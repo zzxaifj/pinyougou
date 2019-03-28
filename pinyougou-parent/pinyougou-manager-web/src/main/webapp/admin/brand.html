@@ -20,106 +20,13 @@
 <!-- 导入分页 JS 和 css -->
 <script type="text/javascript" src="../plugins/angularjs/pagination.js"></script>
 <link rel="stylesheet" href="/plugins/angularjs/pagination.css">
+
+<script type="text/javascript" src="../js/basePagenation.js"></script>
+<!-- 引入service层 -->
+<script type="text/javascript" src="../js/service/brandService.js"></script>
 <!-- mvc 之 controller 层实现 -->
-<script type="text/javascript">
-    	var app = angular.module('pinyougou',['pagination']);
-    	
-    	<!-- $scope 与body进行交互 $http 与后台交互-->
-    	app.controller('brandController',function($scope,$http){
-    		$scope.findAll = function(){
-    			$http.get('../brand/findAll.do').success(function(response){
-    				$scope.brandList=response;
-    			});
-    		}
-    		
-    		//2、需要在table结束后添加页数显示标签tm-pagination 并定义conf（位于博客最后）
-            /*3、将2中定义的conf变量，进行赋值
-            	currentPage : 页码,
-    			totalItems : 总记录数,
-    			itemsPerPage : 每页显示记录数,
-    			perPageOptions : 需要每页显示多少记录，用户可自定义,
-    			onChange : 当页码发生变化时，出发事件。
-            */
-    		//分页控件配置 
-    		$scope.paginationConf = {
-    			currentPage : 1,
-    			totalItems : 10,
-    			itemsPerPage : 10,
-    			perPageOptions : [ 10, 20, 30, 40, 50 ],
-    			onChange : function() {
-    				$scope.reloadList();//重新加载
-    			}
-    		};
-    		
-    		$scope.reloadList=function(){
-    			//$scope.findPage($scope.paginationConf.currentPage,$scope.paginationConf.itemsPerPage);
-    			$scope.search($scope.paginationConf.currentPage,$scope.paginationConf.itemsPerPage);
-    		}
-    		
-    		//查询后端代码
-    		$scope.findPage=function(page,rows){
-	    		$http.get('../brand/findPage.do?page='+page+'&rows='+rows).success(function(response){
-	    			$scope.paginationConf.totalItems = response.total;
-	    			$scope.brandList = response.list;
-	    		});
-    		}
-    		
-    		//新增/修改品牌列表
-    		$scope.add=function(){
-    			$http.post('../brand/saveOrUpdate.do',$scope.brand).success(function(response){
-    				if(response.success){
-    					$scope.reloadList();//重新加载
-    				}else{
-    					alert(response.message);
-    				}
-    			});
-    		}
-    		
-    		//通过 id 获取品牌数据 
-    		$scope.findOne=function(id){
-    			$http.get('../brand/findOne.do?id='+id).success(function(response){
-    				$scope.brand=response;
-    			});
-    		}
-    		
-    		//批量删除,数组插入push,删除splice
-    		$scope.ids=[];
-    		//通过 $event 内置属性判断是否选中   (**************************************************)
-    		$scope.updateSelection = function($event,id){
-    			if($event.target.checked){//如果选中则添加到 ids 中
-    				$scope.ids.push(id);
-    			}else{
-    				var index = $scope.ids.indexOf(id);
-    				$scope.ids.splice(index,1);//删除
-    			}
-    		}
-    		$scope.dele=function(){
-	    		$http.get('../brand/delete.do?ids='+$scope.ids).success(function(response){
-	    			if(response.success){
-	    				$scope.reloadList();//重新加载
-	    			}else{
-	    				alert(response.messsage);
-	    			}
-	    		});
-    		}
-    		
-    		//页面刷新
-    		$scope.refresh = function(){
-    			$scope.reloadList();//重新加载
-    		}
-    		
-    		//页面模糊查询 
-    		$scope.searchEntity={};
-    		$scope.search = function(page,rows){
-    			$http.post('../brand/search.do?pageNum='+page
-    								+'&pageSize='+rows,$scope.searchEntity).success(function(response){
-    				$scope.paginationConf.totalItems = response.total;
-	    			$scope.brandList = response.list;
-    			});
-    		}
-    	});
-    	
-    </script>
+<script type="text/javascript" src="../js/controller/baseController.js"></script>
+<script type="text/javascript" src="../js/controller/brandController.js"></script>
 </head>
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou"
 	ng-controller="brandController">
