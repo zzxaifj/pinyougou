@@ -25,4 +25,36 @@ public interface BrandService {
 	 * @return PageResult
 	 */
 	public PageResult findPage(int pageNum,int pageSize);
+	
+	/**
+	 * @desc 添加品牌列表
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年3月28日-上午10:34:16 
+	 * @param tbBrand void
+	 */
+	public void add(TbBrand tbBrand);
+	
+	/**
+	 * @desc 修改品牌列表
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年3月28日-下午1:30:59  void
+	 */
+	public void update(TbBrand tbBrand);
+	
+	/**
+	 * @desc 通过 id 获取单一品牌对象
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年3月28日-下午1:46:14 
+	 * @param id
+	 * @return TbBrand
+	 */
+	public TbBrand findOne(Long id);
+	
+	/**
+	 * @desc 通过id集合轮序删除品牌信息
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年3月28日-下午3:11:33 
+	 * @param ids void
+	 */
+	public void delete(Long[] ids);
 }
