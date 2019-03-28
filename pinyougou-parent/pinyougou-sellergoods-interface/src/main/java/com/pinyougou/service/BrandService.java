@@ -57,4 +57,13 @@ public interface BrandService {
 	 * @param ids void
 	 */
 	public void delete(Long[] ids);
+	
+	/**
+	 * @desc 模糊查询 品牌 列表
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年3月28日-下午4:36:11 
+	 * @param tbBrand
+	 * @return PageResult
+	 */
+	public PageResult search(TbBrand tbBrand,int pageNum,int pageSize);
 }

@@ -96,4 +96,18 @@ public class BrandController {
 			return new Result(false, "删除失败");
 		}
 	}
+	
+	/**
+	 * @desc 模糊查询
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年3月28日-下午4:59:26 
+	 * @param tbBrand
+	 * @param pageNum
+	 * @param pageSize
+	 * @return PageResult
+	 */
+	@RequestMapping("/search")
+	public PageResult search(@RequestBody TbBrand tbBrand ,int pageNum,int pageSize) {
+		return brandService.search(tbBrand, pageNum, pageSize);
+	}
 }
