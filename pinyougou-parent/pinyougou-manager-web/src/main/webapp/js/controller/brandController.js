@@ -13,7 +13,7 @@
 		$scope.findPage=function(page,rows){
 			brandService.findPage().success(function(response){
     			$scope.paginationConf.totalItems = response.total;
-    			$scope.brandList = response.list;
+    			$scope.brandList = response.rows;
     		});
 		}
 		
@@ -36,7 +36,7 @@
 		}
 		
 		$scope.dele=function(){
-			brandService.deleteList($scope.ids).success(function(response){
+			brandService.deleteList($scope.selectIds).success(function(response){
     			if(response.success){
     				$scope.reloadList();//重新加载
     			}else{
@@ -55,7 +55,7 @@
 		$scope.search = function(page,rows){
 			brandService.search(page,rows,$scope.searchEntity).success(function(response){
 				$scope.paginationConf.totalItems = response.total;
-    			$scope.brandList = response.list;
+    			$scope.brandList = response.rows;
 			});
 		}
 	});

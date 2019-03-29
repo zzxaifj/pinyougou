@@ -96,7 +96,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pinyougou.pojo.TbSpecification" >
+  <insert id="insert" parameterType="com.pinyougou.pojo.TbSpecification" useGeneratedKeys="true" keyProperty="id">
     insert into tb_specification (id, spec_name)
     values (#{id,jdbcType=BIGINT}, #{specName,jdbcType=VARCHAR})
   </insert>

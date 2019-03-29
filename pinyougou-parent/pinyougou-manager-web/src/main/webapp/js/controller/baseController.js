@@ -24,14 +24,14 @@ app.controller('baseController',function($scope){
 	}
 	
 	//批量删除,数组插入push,删除splice
-	$scope.ids=[];
+	$scope.selectIds=[];
 	//通过 $event 内置属性判断是否选中   (**************************************************)
 	$scope.updateSelection = function($event,id){
 		if($event.target.checked){//如果选中则添加到 ids 中
-			$scope.ids.push(id);
+			$scope.selectIds.push(id);
 		}else{
-			var index = $scope.ids.indexOf(id);
-			$scope.ids.splice(index,1);//删除
+			var index = $scope.selectIds.indexOf(id);
+			$scope.selectIds.splice(index,1);//删除
 		}
 	}
 });
