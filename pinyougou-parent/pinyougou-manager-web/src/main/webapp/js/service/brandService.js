@@ -24,4 +24,9 @@
 			return $http.post('../brand/search.do?page='+page
 					+'&rows='+rows,searchEntity)
 		}
+		
+		//下拉框品牌选项获取
+		this.selectOptionList=function(){
+			return $http.get('../brand/selectOptionList.do');
+		}
 	});

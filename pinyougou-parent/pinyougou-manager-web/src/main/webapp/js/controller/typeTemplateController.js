@@ -1,5 +1,5 @@
  //控制层 
-app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemplateService,brandService,specificationService){	
+app.controller('typeTemplateController' ,function($scope,$controller,typeTemplateService,brandService,specificationService){	
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -111,7 +111,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 	}
 	//删除扩展属性行
 	$scope.deleTableRow=function(index){
-		$scope.entity.customAttributeItems.splice( index,1);
+		$scope.entity.customAttributeItems.splice(index,1);
 	}
 	
 });	

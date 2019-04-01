@@ -34,4 +34,27 @@ app.controller('baseController',function($scope){
 			$scope.selectIds.splice(index,1);//删除
 		}
 	}
+	
+	//获取对象中某一属性进行拼装
+	$scope.jsonToString=function(jsonString , key){
+		var json = JSON.parse(jsonString);
+		var value="";
+		for(i=0;i<json.length;i++){
+			if(i>0){
+				value+=",";
+			}
+			value+=json[i][key];
+		}
+		return value;
+	}
+	
+	//将对象转换为list
+	$scope.jsonToList=function(jsonString , key){
+		var json = JSON.parse(jsonString);
+		var value=[];
+		for(i=0;i<json.length;i++){
+			value.push(json[i][key]);
+		}
+		return value;
+	}
 });

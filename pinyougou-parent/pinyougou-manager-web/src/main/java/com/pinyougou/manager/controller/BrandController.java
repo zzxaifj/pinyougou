@@ -1,6 +1,7 @@
 package com.pinyougou.manager.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -109,5 +110,16 @@ public class BrandController {
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbBrand tbBrand ,int page,int rows) {
 		return brandService.search(tbBrand, page, rows);
+	}
+	
+	/**
+	 * @desc 下拉品牌列表功能
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月1日-上午9:31:39 
+	 * @return Map<K,V>
+	 */
+	@RequestMapping("/selectOptionList")
+	public List<Map> selectOptionList(){
+		return brandService.selectOptionList();
 	}
 }
