@@ -73,11 +73,10 @@
 		<!-- 当自己的项目需要使用另一个项目中的服务类时 ，需要通过dubbo引入项目  dubbo标签-->
 		<beans:property name="sellerService" ref="sellerService"></beans:property>
 	</beans:bean>
-
-
-	<!-- 引用dubbo sellerService服务：供登录用户业务处理类使用 -->
+	
+	<!-- 引入外部的服务实现 -->
 	<dubbo:application name="pinyougou-shop-web" />
-	<dubbo:registry address="zookeeper://192.168.159.129:2181" />
-	<dubbo:reference id="sellerService"
-		interface="com.pinyougou.sellergoods.service.SellerService"></dubbo:reference>
+	<dubbo:registry address="zookeeper://192.168.88.129:2181" />
+	<dubbo:reference id="sellerService" interface="com.pinyougou.service.SellerService"></dubbo:reference>
+
 </beans:beans>

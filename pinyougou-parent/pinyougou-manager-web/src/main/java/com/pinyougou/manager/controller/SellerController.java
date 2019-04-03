@@ -112,4 +112,15 @@ public class SellerController {
 		return sellerService.findPage(seller, page, rows);		
 	}
 	
+	@RequestMapping("/updateStatus")
+	public Result updateStatus(String sellerId, String status) {
+		try {
+			sellerService.updateStatus(sellerId, status);
+			return new Result(true, "状态修改成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "状态修改失败");
+		}
+	}
+	
 }

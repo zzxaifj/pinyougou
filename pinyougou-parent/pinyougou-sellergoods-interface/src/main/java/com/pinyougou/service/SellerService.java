@@ -58,4 +58,12 @@ public interface SellerService {
 	 */
 	public PageResult findPage(TbSeller seller, int pageNum,int pageSize);
 	
+	/**
+	 * @desc 审核商家状态
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月3日-下午8:44:06 
+	 * @param sellerId
+	 * @param status void
+	 */
+	public void updateStatus(String sellerId, String status);
 }

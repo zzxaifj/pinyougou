@@ -26,6 +26,7 @@
     <result column="legal_person_card_id" property="legalPersonCardId" jdbcType="VARCHAR" />
     <result column="bank_user" property="bankUser" jdbcType="VARCHAR" />
     <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="bank_account" property="bankAccount" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -89,7 +90,7 @@
     seller_id, name, nick_name, password, email, mobile, telephone, status, address_detail, 
     linkman_name, linkman_qq, linkman_mobile, linkman_email, license_number, tax_number, 
     org_number, address, logo_pic, brief, create_time, legal_person, legal_person_card_id, 
-    bank_user, bank_name
+    bank_user, bank_name, bank_account
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pinyougou.pojo.TbSellerExample" >
     select
@@ -129,7 +130,7 @@
       linkman_email, license_number, tax_number, 
       org_number, address, logo_pic, 
       brief, create_time, legal_person, 
-      legal_person_card_id, bank_user, bank_name
+      legal_person_card_id, bank_user, bank_name, bank_account
       )
     values (#{sellerId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
@@ -138,7 +139,7 @@
       #{linkmanEmail,jdbcType=VARCHAR}, #{licenseNumber,jdbcType=VARCHAR}, #{taxNumber,jdbcType=VARCHAR}, 
       #{orgNumber,jdbcType=VARCHAR}, #{address,jdbcType=BIGINT}, #{logoPic,jdbcType=VARCHAR}, 
       #{brief,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{legalPerson,jdbcType=VARCHAR}, 
-      #{legalPersonCardId,jdbcType=VARCHAR}, #{bankUser,jdbcType=VARCHAR}, #{bankName,jdbcType=VARCHAR}
+      #{legalPersonCardId,jdbcType=VARCHAR}, #{bankUser,jdbcType=VARCHAR}, #{bankName,jdbcType=VARCHAR},#{bankAccount,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.pinyougou.pojo.TbSeller" >
@@ -216,6 +217,9 @@
       <if test="bankName != null" >
         bank_name,
       </if>
+      <if test="bankAccount != null" >
+        bank_account,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="sellerId != null" >
@@ -289,6 +293,9 @@
       </if>
       <if test="bankName != null" >
         #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankAccount != null" >
+        #{bankAccount,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -373,6 +380,9 @@
       <if test="record.bankName != null" >
         bank_name = #{record.bankName,jdbcType=VARCHAR},
       </if>
+      <if test="record.bankAccount != null" >
+        bank_account = #{record.bankAccount,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -403,7 +413,8 @@
       legal_person = #{record.legalPerson,jdbcType=VARCHAR},
       legal_person_card_id = #{record.legalPersonCardId,jdbcType=VARCHAR},
       bank_user = #{record.bankUser,jdbcType=VARCHAR},
-      bank_name = #{record.bankName,jdbcType=VARCHAR}
+      bank_name = #{record.bankName,jdbcType=VARCHAR},
+      bank_account = #{record.bankAccount,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -480,6 +491,9 @@
       <if test="bankName != null" >
         bank_name = #{bankName,jdbcType=VARCHAR},
       </if>
+      <if test="bankAccount != null" >
+        bank_account = #{bankAccount,jdbcType=VARCHAR},
+      </if>
     </set>
     where seller_id = #{sellerId,jdbcType=VARCHAR}
   </update>
@@ -507,7 +521,8 @@
       legal_person = #{legalPerson,jdbcType=VARCHAR},
       legal_person_card_id = #{legalPersonCardId,jdbcType=VARCHAR},
       bank_user = #{bankUser,jdbcType=VARCHAR},
-      bank_name = #{bankName,jdbcType=VARCHAR}
+      bank_name = #{bankName,jdbcType=VARCHAR},
+      bank_account = #{bankAccount,jdbcType=VARCHAR}
     where seller_id = #{sellerId,jdbcType=VARCHAR}
   </update>
 </mapper>
