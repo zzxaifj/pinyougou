@@ -58,4 +58,12 @@ public interface ItemCatService {
 	 */
 	public PageResult findPage(TbItemCat itemCat, int pageNum,int pageSize);
 	
+	/**
+	 * @desc 查询父节点下的所有子节点
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月4日-上午11:27:42 
+	 * @param parentId
+	 * @return List<TbItemCat>
+	 */
+	public List<TbItemCat> findByParentId(Long parentId);
 }

@@ -92,6 +92,12 @@ public class ItemCatController {
 	@RequestMapping("/delete")
 	public Result delete(Long [] ids){
 		try {
+			for(Long id:ids) {
+				List<TbItemCat> list = this.findByParentId(id);
+				if(list.size()!=0) {
+					return new Result(false, id+"分类存在子目录，不支持级联删除。");
+				}
+			}
 			itemCatService.delete(ids);
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
@@ -112,4 +118,15 @@ public class ItemCatController {
 		return itemCatService.findPage(itemCat, page, rows);		
 	}
 	
+	/**
+	 * @desc 通过父节点查询所有子节点
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月4日-上午11:57:33 
+	 * @param parentId
+	 * @return List<TbItemCat>
+	 */
+	@RequestMapping("/findByParentId")
+	public List<TbItemCat> findByParentId(Long parentId){
+		return itemCatService.findByParentId(parentId);
+	}
 }
