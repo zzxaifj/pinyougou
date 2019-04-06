@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,goodsService,uploadService){	
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -51,6 +51,22 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 		);				
 	}
 	
+	$scope.add=function(){
+		$scope.entity.tbGoodsDesc.introduction=editor.html();
+		goodsService.add($scope.entity).success(
+			function(response){
+				if(response.success){
+					//重新查询 
+		        	alert(response.message);
+		        	$scope.entity={};
+		        	editor.html("");
+				}else{
+					alert(response.message);
+				}
+			}		
+		);				
+	}
+	
 	 
 	//批量删除 
 	$scope.dele=function(){			
@@ -77,4 +93,24 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 		);
 	}
     
+	//文件上传   上传按钮
+	$scope.upload=function(){
+		uploadService.upload().success(function(response){
+			if(response.success){
+				$scope.image_entity.url=response.message;
+			}else{
+				alert(response.messge);
+			}
+		});
+	}
+	
+	//保存图片
+	$scope.entity={tbGoodsDesc:{itemImages:[]}};
+	$scope.add_image_entity=function(){
+		$scope.entity.tbGoodsDesc.itemImages.push($scope.image_entity);
+	}
+	
+	$scope.remove=function(index){
+		$scope.entity.tbGoodsDesc.itemImages.splice(index,1);
+	}
 });	
