@@ -57,4 +57,13 @@ app.controller('baseController',function($scope){
 		}
 		return value;
 	}
+	
+	//在 list 中通过key 添加value 如果 key 不存在则添加 key
+	$scope.searchObjectByKey=function(list,key,value){
+		for(var i=0;i<list.length;i++){
+			if(list[i][key] == value){
+				return list[i]
+			}
+		}
+	}
 });

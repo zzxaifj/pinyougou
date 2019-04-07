@@ -61,7 +61,7 @@ public interface SpecificationService {
 	 */
 	public PageResult findPage(TbSpecification specification, int pageNum,int pageSize);
 	
-	
+	//查询所有的 规格list
 	public List<Map> selectOptionList();
 	
 }

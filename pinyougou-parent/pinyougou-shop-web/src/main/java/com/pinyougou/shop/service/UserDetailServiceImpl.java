@@ -13,6 +13,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.service.SellerService;
 
+/**
+ * @author：创建人:Administrator
+ * @time 时间：2019年4月6日-上午11:36:51 
+ * @version 1.0.0
+ * @desc 安全框架逻辑实现层
+ */
 public class UserDetailServiceImpl implements UserDetailsService{
 
 	private SellerService sellerService;
