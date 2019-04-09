@@ -1,5 +1,6 @@
 package com.pinyougou.manager.controller;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -112,6 +113,17 @@ public class TypeTemplateController {
 		return typeTemplateService.findPage(typeTemplate, page, rows);		
 	}
 	
-
+	/**
+	 * @desc 通过模板中的规格信息 查询 规格表中的相信信息
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月6日-下午5:00:48 
+	 * @param id
+	 * @return List<Map>
+	 * @exception
+	 */
+	@RequestMapping("/findSpecList")
+	public List<Map> findSpecList(Long id){
+		return typeTemplateService.findSpecList(id);
+	}
 	
 }

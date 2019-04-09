@@ -69,7 +69,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -85,7 +85,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -117,4 +117,23 @@ public class GoodsController {
 		return goodsService.findPage(goods, page, rows);		
 	}
 	
+	/**
+	 * @desc 修改商品 审核状态
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月8日-下午3:16:15 
+	 * @param ids
+	 * @param status
+	 * @return Result
+	 * @exception
+	 */
+	@RequestMapping("/updateStatus")
+	public Result updateStatus(Long[] ids,String status) {
+		try {
+			goodsService.updateStatus(ids, status);
+			return new Result(true, "审核成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "审核失败");
+		}
+	}
 }

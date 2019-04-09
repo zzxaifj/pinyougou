@@ -36,7 +36,7 @@
       
 </head>
 
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController" ng-init="findItemCatEntity()">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController" ng-init="findItemCatEntity();findOne()">
 
             <!-- 正文区域 -->
             <section class="content">
@@ -176,7 +176,7 @@
 	                                <div ng-repeat="entity in entity.tbGoodsDesc.customAttributeItems">
 		                                <div class="col-md-2 title">{{entity.text}}</div>
 				                        <div class="col-md-10 data">
-				                              <input class="form-control" placeholder="{{entity.text}}" ng-model="entity.value">	            	 
+				                              <input class="form-control" placeholder="{{entity.text}}" ng-model="entity.value"/>	            	 
 				                        </div>
 	                                </div>       
                                 </div>
@@ -201,7 +201,7 @@
 					                        <div class="col-md-10 data">
 					                               
 					                            <span ng-repeat="pojo in entity.options">
-					                            	<input  type="checkbox" ng-click="updateSpecAttribute($event,entity.text,pojo.optionName);createItemList()">{{pojo.optionName}}					                            				                            	
+					                            	<input  type="checkbox" ng-checked="checkAttributeValue(entity.text,pojo.optionName)" ng-click="updateSpecAttribute($event,entity.text,pojo.optionName);createItemList()">{{pojo.optionName}}					                            				                            	
 					                            </span>  	
 					                            	
 					                        </div>
@@ -253,7 +253,7 @@
                    </div>
                   <div class="btn-toolbar list-toolbar">
 				      <button class="btn btn-primary"  ng-click="add()"><i class="fa fa-save"></i>保存</button>
-				      <button class="btn btn-default" >返回列表</button>
+				      <a class="btn btn-default" href="goods.html">返回列表</a>
 				  </div>
 			
             </section>

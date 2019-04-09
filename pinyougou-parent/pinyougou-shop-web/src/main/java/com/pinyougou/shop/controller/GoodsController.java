@@ -40,7 +40,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findPage")
-	public PageResult  findPage(int page,int rows){			
+	public PageResult  findPage(int page,int rows){
 		return goodsService.findPage(page, rows);
 	}
 	
@@ -68,7 +68,15 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
+		//操作用户
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		//商品所属用户
+		String sellerId = findOne(goods.getTbGoods().getId()).getTbGoods().getSellerId();
+		if(!sellerId.equals(name)
+			||!sellerId.equals(sellerId)) {
+			return new Result(false, "商品所属非此用户下");
+		}
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -84,7 +92,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -113,6 +121,8 @@ public class GoodsController {
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		goods.setSellerId(name);;
 		return goodsService.findPage(goods, page, rows);		
 	}
 	

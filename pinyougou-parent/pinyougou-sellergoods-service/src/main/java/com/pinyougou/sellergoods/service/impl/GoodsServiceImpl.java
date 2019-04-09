@@ -17,10 +17,12 @@ import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.mapper.TbSellerMapper;
 import com.pinyougou.pojo.TbBrand;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbGoodsDesc;
 import com.pinyougou.pojo.TbGoodsExample;
 import com.pinyougou.pojo.TbGoodsExample.Criteria;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbItemCat;
+import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.service.GoodsService;
@@ -61,7 +63,10 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public PageResult findPage(int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);		
-		Page<TbGoods> page=   (Page<TbGoods>) goodsMapper.selectByExample(null);
+		TbGoodsExample goods = new TbGoodsExample();
+		Criteria criteria = goods.createCriteria();
+		criteria.andIsDeleteIsNull();
+		Page<TbGoods> page=   (Page<TbGoods>) goodsMapper.selectByExample(goods );
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
@@ -77,6 +82,10 @@ public class GoodsServiceImpl implements GoodsService {
 		goods.getTbGoodsDesc().setGoodsId(goods.getTbGoods().getId());
 		goodsDescMapper.insert(goods.getTbGoodsDesc());
 		
+		this.createItemInfo(goods);
+	}
+
+	private void createItemInfo(Goods goods) {
 		//是否启用规格
 		if("1".equals(goods.getTbGoods().getIsEnableSpec())) {
 			//插入 item 商品表中
@@ -153,8 +162,18 @@ public class GoodsServiceImpl implements GoodsService {
 	 * 修改
 	 */
 	@Override
-	public void update(TbGoods goods){
-		goodsMapper.updateByPrimaryKey(goods);
+	public void update(Goods goods){
+		goodsMapper.updateByPrimaryKey(goods.getTbGoods());
+		goodsDescMapper.updateByPrimaryKey(goods.getTbGoodsDesc());
+		TbItemExample example = new TbItemExample();
+		com.pinyougou.pojo.TbItemExample.Criteria createCriteria = example.createCriteria();
+		createCriteria.andGoodsIdEqualTo(goods.getTbGoods().getId());
+		List<TbItem> list = itemMapper.selectByExample(example);
+		//循环删除修改前的SKU 因为数量上可能已经发生了变化
+		for(TbItem item:list) {
+			itemMapper.deleteByPrimaryKey(item.getId());
+		}
+		this.createItemInfo(goods);
 	}	
 	
 	/**
@@ -163,8 +182,22 @@ public class GoodsServiceImpl implements GoodsService {
 	 * @return
 	 */
 	@Override
-	public TbGoods findOne(Long id){
-		return goodsMapper.selectByPrimaryKey(id);
+	public Goods findOne(Long id){
+		Goods goods = new Goods();
+		//获取商品信息
+		TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+		goods.setTbGoods(tbGoods);
+		//商品明细
+		TbGoodsDesc goodsDesc = goodsDescMapper.selectByPrimaryKey(id);
+		goods.setTbGoodsDesc(goodsDesc);
+		//SKU 详细信息
+		TbItemExample example=new TbItemExample();
+		com.pinyougou.pojo.TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdEqualTo(id);
+		List<TbItem> list = itemMapper.selectByExample(example);
+		goods.setItemList(list);
+		
+		return goods;
 	}
 
 	/**
@@ -173,7 +206,11 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
-			goodsMapper.deleteByPrimaryKey(id);
+			//goodsMapper.deleteByPrimaryKey(id);
+			TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+			goods.setIsDelete("1");//表示删除
+			goodsMapper.updateByPrimaryKey(goods);
+			
 		}		
 	}
 	
@@ -186,8 +223,8 @@ public class GoodsServiceImpl implements GoodsService {
 		Criteria criteria = example.createCriteria();
 		
 		if(goods!=null){			
-						if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
-				criteria.andSellerIdLike("%"+goods.getSellerId()+"%");
+			if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
+				criteria.andSellerIdLike(goods.getSellerId());
 			}
 			if(goods.getGoodsName()!=null && goods.getGoodsName().length()>0){
 				criteria.andGoodsNameLike("%"+goods.getGoodsName()+"%");
@@ -207,14 +244,24 @@ public class GoodsServiceImpl implements GoodsService {
 			if(goods.getIsEnableSpec()!=null && goods.getIsEnableSpec().length()>0){
 				criteria.andIsEnableSpecLike("%"+goods.getIsEnableSpec()+"%");
 			}
-			if(goods.getIsDelete()!=null && goods.getIsDelete().length()>0){
-				criteria.andIsDeleteLike("%"+goods.getIsDelete()+"%");
-			}
+			//只查询未删除的即 == null 的值
+			criteria.andIsDeleteIsNull();
 	
 		}
 		
 		Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
+		/**
+		 * 修改商品的审核状态
+		 */
+		@Override
+		public void updateStatus(Long[] ids, String status) {
+			for(Long id:ids) {
+				TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+				goods.setAuditStatus(status);
+				goodsMapper.updateByPrimaryKey(goods);
+			}
+		}
 	
 }

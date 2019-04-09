@@ -35,7 +35,7 @@ public interface GoodsService {
 	/**
 	 * 修改
 	 */
-	public void update(TbGoods goods);
+	public void update(Goods goods);
 	
 
 	/**
@@ -43,7 +43,7 @@ public interface GoodsService {
 	 * @param id
 	 * @return
 	 */
-	public TbGoods findOne(Long id);
+	public Goods findOne(Long id);
 	
 	
 	/**
@@ -60,4 +60,12 @@ public interface GoodsService {
 	 */
 	public PageResult findPage(TbGoods goods, int pageNum,int pageSize);
 	
+	/**
+	 * @desc 修改商品 审核状态
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月8日-下午3:10:57 
+	 * @param ids
+	 * @param status void
+	 */
+	public void updateStatus(Long[] ids,String status);
 }
