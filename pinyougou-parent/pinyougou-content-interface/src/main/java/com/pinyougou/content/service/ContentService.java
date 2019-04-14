@@ -58,4 +58,13 @@ public interface ContentService {
 	 */
 	public PageResult findPage(TbContent content, int pageNum,int pageSize);
 	
+	/**
+	 * @desc 通过分类查询 content 列表
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月13日-下午12:27:34 
+	 * @param id
+	 * @return List<TbContent>
+	 */
+	public List<TbContent> findByContentCategoryId(Long id);
+	
 }

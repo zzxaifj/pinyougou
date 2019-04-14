@@ -1,6 +1,8 @@
 package com.pinyougou.content.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -23,6 +25,9 @@ public class ContentServiceImpl implements ContentService {
 	@Autowired
 	private TbContentMapper contentMapper;
 	
+	//引入缓存redis
+	@Autowired
+	private RedisTemplate redisTemplate;
 	/**
 	 * 查询全部
 	 */
@@ -44,18 +49,31 @@ public class ContentServiceImpl implements ContentService {
 	/**
 	 * 增加
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void add(TbContent content) {
 		contentMapper.insert(content);		
+		//清除缓存
+		redisTemplate.boundHashOps("content").delete(content.getCategoryId());
 	}
 
 	
 	/**
 	 * 修改
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void update(TbContent content){
+		//获取分类ID
+		Long categoryId = contentMapper.selectByPrimaryKey(content.getId()).getCategoryId();
+		//清除缓存
+		redisTemplate.boundHashOps("content").delete(categoryId);
 		contentMapper.updateByPrimaryKey(content);
+		
+		//更新后 分类ID 可能发生了变化 更新变化后的分类 ID
+		if(categoryId.longValue()!=content.getCategoryId().longValue()) {
+			redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+		}
 	}	
 	
 	/**
@@ -71,9 +89,14 @@ public class ContentServiceImpl implements ContentService {
 	/**
 	 * 批量删除
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
+			//获取分类 ID
+			Long categoryId = contentMapper.selectByPrimaryKey(id).getCategoryId();
+			//清除缓存
+			redisTemplate.boundHashOps("content").delete(categoryId);
 			contentMapper.deleteByPrimaryKey(id);
 		}		
 	}
@@ -105,5 +128,30 @@ public class ContentServiceImpl implements ContentService {
 		Page<TbContent> page= (Page<TbContent>)contentMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public List<TbContent> findByContentCategoryId(Long categoryId) {
+			//从缓存汇总获取 如果缓存中不存在则从数据库中获取并添加到缓存
+			List<TbContent> selectByExample = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+			if(selectByExample == null) {
+				TbContentExample example = new TbContentExample();
+				Criteria criteria = example.createCriteria();
+				//封装分类的id
+				criteria.andCategoryIdEqualTo(categoryId);
+				//查询状态为可用的列表
+				criteria.andStatusEqualTo("1");
+				//按照排序进行查询
+				example.setOrderByClause("sort_order");
+				selectByExample = contentMapper.selectByExample(example );
+				
+				//将结果添加到缓存中
+				redisTemplate.boundHashOps("content").put(categoryId, selectByExample);
+				System.out.println("从数据库中获取数据");
+			}else {
+				System.out.println("从缓存中获取数据");
+			}
+			return selectByExample;
+		}
 	
 }

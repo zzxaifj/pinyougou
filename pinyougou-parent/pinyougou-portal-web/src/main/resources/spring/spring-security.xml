@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 此配置将Spring Seucrity设置成了默认标签，其他使用时，需要添加如下前缀beans或dubbo等 -->
+<beans:beans
+	xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- 登录页面不能拦截  none任何角色都可访问
+	如果你没有设置登录页security="none"  ，将会出现以下错误 :"重定向次数过多"因为登录页会被反复重定向-->
+	<http pattern="/*.html" security="none"></http>
+	<http pattern="/css/**" security="none"></http>
+	<http pattern="/img/**" security="none"></http>
+	<http pattern="/js/**" security="none"></http>
+	<http pattern="/plugins/**" security="none"></http>
+	<!-- 注意：如果是用户申请登录名的请求也不能拦截 -->
+	<http pattern="/seller/add.do" security="none"></http>
+	<!-- 拦截页面 -->
+	<!-- use-expressions -为是否使用使用 Spring 表达式语言（ SpEL ），默认为true ,如果开启，则拦截的配置应该写成以下形式
+	     <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+	-->
+	<http use-expressions="false">
+	    <!-- 
+	         /*  表示的是该目录下的资源，只包括本级目录不包括下级目录
+			 /** 表示的是该目录以及该目录下所有级别子目录的资源
+		 -->
+		<intercept-url pattern="/**" access="ROLE_SELLER" />
+		<!-- form-login：开启表单登录，默认登录请求/login可以通过配置修改默认请求
+		     always-use-default-target：指定了是否在身份验证通过后总是跳转到default-target-url属性指定的URL。
+		     authentication-failure-url:登录失败，跳转页面 -->
+		<form-login login-page="/shoplogin.html"
+			default-target-url="/admin/index.html"
+			authentication-failure-url="/shoplogin.html"
+			always-use-default-target="true" />
+		<!-- csrf disabled="true"  关闭csrf ,如果不加会出现错403    
+		CSRF（Cross-site request forgery）跨站请求伪造，
+		也被称为“One Click Attack”或者Session Riding，通常缩写为CSRF或者XSRF，是一种对网站的恶意利用。-->
+		<csrf disabled="true" />
+		<!-- 当页面中存在嵌入式iframe时，需要配置hears -->
+		<headers>
+			<frame-options policy="SAMEORIGIN" />
+		</headers>
+		<!-- 登出，页面只需要发送/logout请求就可会触发 也可以修改默认的处理，例如logout-url=""可以修改登出的请求-->
+		<logout />
+	</http>
+	<!-- Spring Security中 用户登录时认证管理器 -->
+	<!-- Spring Security是如何完成身份认证的？
+               ①、用户名和密码被过滤器获取到，封装成Authentication,通常情况下是UsernamePasswordAuthenticationToken这个实现类。
+               ②、AuthenticationManager 身份管理器负责验证这个Authentication。
+               ③、认证成功后，AuthenticationManager身份管理器返回一个被填充满了信息的（包括上面提到的权限信息，身份信息，细节信息，但密码通常会被移除）Authentication实例。
+               ④、SecurityContextHolder安全上下文容器将第3步填充了信息的Authentication，
+                             通过SecurityContextHolder.getContext().setAuthentication(…)方法，设置到其中。 -->
+	<authentication-manager>
+	    <!-- user-service-ref 指向用户认证业务处理类，需要实现UserDetailsService接口-->
+	    <!-- 如果测试，不想从数据库中获取用户，可以直接配置一个用户名和密码 ，特换掉如下authentication-provider内的配置即可。
+	    	<authentication-provider>
+		  		<user-service>
+		  			<user name="admin" password="123456" authorities="ROLE_USER"/>
+		  		</user-service>
+		  	</authentication-provider>
+	    -->
+		<authentication-provider user-service-ref="userDetailServiceImpl">
+		    <!-- 对密码进行bcrypt加密，比较时需要解密后处理，bcrypt与MD5不同，
+		         MD5加密后相同的密码生成相同的16位字符创，bcrybt相同的密码加密后生成不同的30位字符串，
+		         相当于MD5+盐 -->
+			<password-encoder hash="bcrypt"></password-encoder>
+		</authentication-provider>
+	</authentication-manager>
+	<beans:bean id="userDetailServiceImpl" class="com.pinyougou.shop.service.UserDetailServiceImpl">
+		<!-- 当自己的项目需要使用另一个项目中的服务类时 ，需要通过dubbo引入项目  dubbo标签-->
+		<beans:property name="sellerService" ref="sellerService"></beans:property>
+	</beans:bean>
+	
+	<!-- 引入外部的服务实现 -->
+	<dubbo:application name="pinyougou-shop-web" />
+	<dubbo:registry address="zookeeper://192.168.88.129:2181" />
+	<dubbo:reference id="sellerService" interface="com.pinyougou.service.SellerService"></dubbo:reference>
+
+</beans:beans>
