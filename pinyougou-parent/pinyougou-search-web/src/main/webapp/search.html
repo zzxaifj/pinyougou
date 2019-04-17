@@ -171,10 +171,10 @@
 			</div>
 			<!--selector-->
 			<div class="clearfix selector">
-				<div class="type-wrap">
+				<div class="type-wrap" ng-if="resultMap.categoryList != null">
 					<div class="fl key">商品分类</div>
 					<div class="fl value">
-						<a href="#">手机</a>  <a href="#">电视</a>
+						<a href="#" ng-repeat="entity in resultMap.categoryList">{{entity}}</a>
 					</div>
 					<div class="fl ext"></div>
 				</div>

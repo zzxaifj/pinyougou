@@ -1,13 +1,22 @@
 package com.pinyougou.search.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.HighlightOptions;
+import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
+import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.result.GroupEntry;
+import org.springframework.data.solr.core.query.result.GroupPage;
+import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 
@@ -75,6 +84,32 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		Map<String, Object> map = new HashMap<>();
 		map.put("rows", highlightPage.getContent());
 		return map;
+	}
+
+	@Override
+	public List<String> findCategoryList(Map<String, String> map) {
+		Query query = new SimpleQuery("*:*");
+		//通过页面传过来的key进行查询
+		Criteria criteria = new Criteria("item_keywords").is(map.get("keywords"));
+		query.addCriteria(criteria );
+		//封装分组域
+		GroupOptions groupOptions = new GroupOptions();
+		groupOptions.addGroupByField("item_category");
+		query.setGroupOptions(groupOptions);
+		//从 solr 中进行分组查询 queryFor GROUP page 
+		GroupPage<TbItem> page = solrTemplate.queryForGroupPage(query , TbItem.class);
+		//获取根据那个域查询的分组集合  因为可以通过多个域分组查询
+		GroupResult<TbItem> groupResult = page.getGroupResult("item_category");
+		//得到结果集的入口
+		Page<GroupEntry<TbItem>> groupEntries = groupResult.getGroupEntries();
+		
+		//返回的 list 构建
+		List<String> list = new ArrayList<>();
+		for(GroupEntry<TbItem> item: groupEntries) {
+			list.add(item.getGroupValue());
+		}
+		
+		return list;
 	}
 
 }
