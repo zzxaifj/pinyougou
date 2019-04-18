@@ -61,7 +61,7 @@ public interface TypeTemplateService {
 	public PageResult findPage(TbTypeTemplate typeTemplate, int pageNum,int pageSize);
 	
 	/**
-	 * @desc 通过模板中的规格 查询具体的规格内容
+	 * @desc 通过模板中的Id 查询具体的规格内容
 	 * @auto 创建人：zzx 
 	 * @time 时间：2019年4月6日-下午4:49:32 
 	 * @param id

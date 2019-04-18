@@ -3,10 +3,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pinyougou.mapper.TbSpecificationOptionMapper;
@@ -34,6 +36,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	
 	@Autowired
 	private TbSpecificationOptionMapper specificationOptionMapper;
+	
+	@Autowired
+	private RedisTemplate redisTemplate;
 	/**
 	 * 查询全部
 	 */
@@ -59,7 +64,6 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	public void add(TbTypeTemplate typeTemplate) {
 		typeTemplateMapper.insert(typeTemplate);		
 	}
-
 	
 	/**
 	 * 修改
@@ -90,7 +94,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	}
 	
 	
-		@Override
+	@Override
 	public PageResult findPage(TbTypeTemplate typeTemplate, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		
@@ -98,7 +102,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		Criteria criteria = example.createCriteria();
 		
 		if(typeTemplate!=null){			
-						if(typeTemplate.getName()!=null && typeTemplate.getName().length()>0){
+			if(typeTemplate.getName()!=null && typeTemplate.getName().length()>0){
 				criteria.andNameLike("%"+typeTemplate.getName()+"%");
 			}
 			if(typeTemplate.getSpecIds()!=null && typeTemplate.getSpecIds().length()>0){
@@ -114,22 +118,45 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		}
 		
 		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
+		
+		//添加品牌和规格 的缓存
+		this.saveRedis();
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-
-		@Override
-		public List<Map> findSpecList(Long id) {
-			TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
-			List<Map> list = JSON.parseArray(typeTemplate.getSpecIds(), Map.class);
-			for(Map pojo : list) {
-				TbSpecificationOptionExample example = new TbSpecificationOptionExample();
-				com.pinyougou.pojo.TbSpecificationOptionExample.Criteria createCriteria = example.createCriteria();
-				createCriteria.andSpecIdEqualTo( new Long((Integer)pojo.get("id")));
-				List<TbSpecificationOption> selectByExample = specificationOptionMapper.selectByExample(example );
-				pojo.put("options", selectByExample);
-			}
-			return list;
+	
+	@SuppressWarnings("unchecked")
+	private void saveRedis() {
+		List<TbTypeTemplate> findAll = this.findAll();
+		for(TbTypeTemplate typeTemplate:findAll) {
+			List<Map> brandList = JSON.parseArray(typeTemplate.getBrandIds(), Map.class);
+			//缓存品牌信息
+			redisTemplate.boundHashOps("brandList").put(typeTemplate.getId(), brandList);
+			
+			//循环规格列表  获取规格的详细信息
+			List<Map> specList = this.findSpecList(typeTemplate.getId());
+			redisTemplate.boundHashOps("specList").put(typeTemplate.getId(), specList);
+			
 		}
+		System.out.println("缓存品牌/规格列表");
+	}
+	
+	/**
+	 * @desc 通过品牌ID 查询规格信息
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Map> findSpecList(Long id) {
+		TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
+		List<Map> list = JSON.parseArray(typeTemplate.getSpecIds(), Map.class);
+		for(Map pojo : list) {
+			TbSpecificationOptionExample example = new TbSpecificationOptionExample();
+			com.pinyougou.pojo.TbSpecificationOptionExample.Criteria createCriteria = example.createCriteria();
+			createCriteria.andSpecIdEqualTo( new Long((Integer)pojo.get("id")));
+			List<TbSpecificationOption> selectByExample = specificationOptionMapper.selectByExample(example );
+			pojo.put("options", selectByExample);
+		}
+		return list;
+	}
 
 
 }

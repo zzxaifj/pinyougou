@@ -1,6 +1,5 @@
 package com.pinyougou.search.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,12 +17,8 @@ public class ItemSearchController {
 	private ItemSearchService itemSearchService;
 	
 	@RequestMapping("/search")
-	public Map<String, Object> search(@RequestBody Map<String, String> searchMap){
-		Map<String, Object> map = new HashMap<>();
+	public Map<String, Object> search(@RequestBody Map searchMap){
 		//高亮显示
-		map.putAll(itemSearchService.search(searchMap));
-		//对查询结果进行分组,并返回
-		map.put("categoryList", itemSearchService.findCategoryList(searchMap));
-		return map;
+		return itemSearchService.search(searchMap);
 	}
 }

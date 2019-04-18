@@ -1,9 +1,6 @@
 package com.pinyougou.search.service;
 
-import java.util.List;
 import java.util.Map;
-
-import com.pinyougou.pojo.TbItem;
 
 public interface ItemSearchService {
 	/**
@@ -14,15 +11,6 @@ public interface ItemSearchService {
 	 * @return Map<String,Object>
 	 * @exception
 	 */
-	public Map<String, Object> search(Map<String,String> map);
+	public Map<String, Object> search(Map map);
 	
-	/**
-	 * @desc 查询分类列表
-	 * @auto 创建人：zzx 
-	 * @time 时间：2019年4月17日-下午12:28:32 
-	 * @param map
-	 * @return List<TbItem>
-	 * @exception
-	 */
-	public List<String> findCategoryList(Map<String,String> map);
 }
