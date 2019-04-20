@@ -1,4 +1,6 @@
 package com.pinyougou.sellergoods.service.impl;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.mysql.fabric.xmlrpc.base.Array;
 import com.pinyougou.mapper.TbBrandMapper;
 import com.pinyougou.mapper.TbGoodsDescMapper;
 import com.pinyougou.mapper.TbGoodsMapper;
@@ -254,16 +257,24 @@ public class GoodsServiceImpl implements GoodsService {
 		Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-		/**
-		 * 修改商品的审核状态
-		 */
-		@Override
-		public void updateStatus(Long[] ids, String status) {
-			for(Long id:ids) {
-				TbGoods goods = goodsMapper.selectByPrimaryKey(id);
-				goods.setAuditStatus(status);
-				goodsMapper.updateByPrimaryKey(goods);
-			}
+	/**
+	 * 修改商品的审核状态
+	 */
+	@Override
+	public void updateStatus(Long[] ids, String status) {
+		for(Long id:ids) {
+			TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+			goods.setAuditStatus(status);
+			goodsMapper.updateByPrimaryKey(goods);
 		}
+	}
+	public List<TbItem> findItemByGoodsId(Long[] ids, String status){
+		TbItemExample example = new TbItemExample();
+		com.pinyougou.pojo.TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andStatusEqualTo(status);
+		criteria.andGoodsIdIn(Arrays.asList(ids));
+		List<TbItem> itemList = itemMapper.selectByExample(example );
+		return itemList;
+	}
 	
 }

@@ -1,6 +1,6 @@
-app.controller('searchController',function($scope,searchService){
+app.controller('searchController',function($scope,$location,searchService){
 	//传向后台的参数
-	$scope.searchMap={'keywords':'','category':'','brand':'','spec':{},'price':'','pageNo':1,'pageSize':10}
+	$scope.searchMap={'keywords':'','category':'','brand':'','spec':{},'price':'','pageNo':1,'pageSize':10,'sort':'','field':''}
 	//查询框的搜索
 	$scope.search=function(){
 		$scope.searchMap.pageNo=parseInt($scope.searchMap.pageNo);
@@ -74,5 +74,31 @@ app.controller('searchController',function($scope,searchService){
 		for(i=firstPage;i<=endPage;i++){
 			$scope.pageLabel.push(i);
 		}
+	}
+	
+	//排序请求
+	$scope.sortForFeild=function(sort,field){
+		$scope.searchMap.sort=sort;
+		$scope.searchMap.field=field;
+		//提交查询
+		$scope.search();
+	}
+	
+	//判断查询keyword中是否存在品牌关键字  存在时就隐藏品牌信息
+	$scope.findKeywordsConditionBrand=function(){
+		//循环品牌列表
+		for(i=0;i<$scope.resultMap.brandList.length;i++){
+			if($scope.searchMap.keywords.indexOf($scope.resultMap.brandList[i].text)>=0){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//主页面请求此页面 时初始化 方法 需要加载父页面的参数
+	$scope.onloadFatherUrl=function(){
+		$scope.searchMap.keywords = $location.search()['keywords'];
+		//提交查询
+		$scope.search();
 	}
 });

@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
+import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.service.GoodsService;
 
 import entity.PageResult;
@@ -25,6 +27,8 @@ public class GoodsController {
 	@Reference
 	private GoodsService goodsService;
 	
+	@Reference
+	private ItemSearchService itemSearchService;
 	/**
 	 * 返回全部列表
 	 * @return
@@ -98,6 +102,9 @@ public class GoodsController {
 	public Result delete(Long [] ids){
 		try {
 			goodsService.delete(ids);
+			//从 solr 中删除 相关SPU 的 SKU 商品
+			itemSearchService.deleteByGoodsIds(ids);
+			
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -130,6 +137,16 @@ public class GoodsController {
 	public Result updateStatus(Long[] ids,String status) {
 		try {
 			goodsService.updateStatus(ids, status);
+			//将审核通过的交易  导入的 solr 中
+			if("1".equals(status)) {//审核通过
+				List<TbItem> items = goodsService.findItemByGoodsId(ids, status);
+				if(items.size()>0) {
+					itemSearchService.importList(items);
+				}else {
+					System.out.println("没有明细数据");
+				}
+			}
+			
 			return new Result(true, "审核成功");
 		} catch (Exception e) {
 			e.printStackTrace();

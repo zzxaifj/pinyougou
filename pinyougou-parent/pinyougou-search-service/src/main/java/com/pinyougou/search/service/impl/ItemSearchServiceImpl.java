@@ -1,12 +1,15 @@
 package com.pinyougou.search.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.Criteria;
@@ -17,6 +20,7 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.GroupEntry;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.GroupResult;
@@ -24,6 +28,7 @@ import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.fasterxml.jackson.databind.deser.impl.ManagedReferenceProperty;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 
@@ -36,8 +41,13 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 	@Autowired
 	private RedisTemplate redisTemplate;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> search(Map searchMap) {
+		
+		//如果keyword 包涵空格 会影响分词器  分词  因此要替换掉
+		String keywords = (String) searchMap.get("keywords");
+		searchMap.put("keywords", keywords.replace(" ", ""));
 		/* 正常实现如下
 		 Query query = new SimpleQuery();
 		//封装查询条件   查询复制域
@@ -48,7 +58,7 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		Map<String, Object> map = new HashMap<>();
 		map.put("rows", page.getContent());*/
 		Map<String, Object> map = new HashMap<>();
-		//发亮查询
+		//高亮查询  === 排序  
 		map.putAll(findHighLightQuery(searchMap));
 		
 		//查询分类列表
@@ -132,7 +142,20 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		//分页查询
 		this.findItemForPage(searchMap, highlightQuery);
 		
-		
+		String order = (String) searchMap.get("sort");
+		String field = (String) searchMap.get("field");
+		if(!"".equals(order)&&!"".equals(field)) {
+			if("ASC".equals(order)) {
+				Sort sort = new Sort(Sort.Direction.ASC, "item_"+field);
+				//按照价格  最新时间更新
+				highlightQuery.addSort(sort );
+			}
+			if("DESC".equals(order)) {
+				Sort sort = new Sort(Sort.Direction.DESC, "item_"+field);
+				//按照价格  最新时间更新
+				highlightQuery.addSort(sort );
+			}
+		}
 		//查询 solr
 		HighlightPage<TbItem> highlightPage = solrTemplate.queryForHighlightPage(highlightQuery, TbItem.class);
 		
@@ -148,8 +171,10 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 				}
 			}*/
 			//因为我们只有一个域 也不存在多值因此只获取第一个
-			String title = h.getHighlights().get(0).getSnipplets().get(0);
-			item.setTitle(title);
+			if(h.getHighlights().size()>0&&h.getHighlights().get(0).getSnipplets().size()>0) {
+				String title = h.getHighlights().get(0).getSnipplets().get(0);
+				item.setTitle(title);
+			}
 		}
 		
 		Map<String, Object> map = new HashMap<>();
@@ -232,6 +257,20 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		List specList = (List) redisTemplate.boundHashOps("specList").get(typeId);
 		map.put("specList", specList);
 		return map;
+	}
+
+	@Override
+	public void importList(List list) {
+		solrTemplate.saveBeans(list);
+		solrTemplate.commit();
+	}
+
+	@Override
+	public void deleteByGoodsIds(Long[] ids) {
+		Criteria criteria=new Criteria("item_goodsid").in(ids);
+		Query query = new SimpleQuery(criteria);
+		solrTemplate.delete(query );
+		solrTemplate.commit();
 	}
 
 }

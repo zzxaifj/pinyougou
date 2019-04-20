@@ -22,7 +22,7 @@
     
 	</head>
 
-	<body ng-app="pinyougou" ng-controller="searchController">
+	<body ng-app="pinyougou" ng-controller="searchController" ng-init="onloadFatherUrl()">
 		<!-- 头部栏位 -->
 		<!--页面顶部-->
 		<div id="nav-bottom">
@@ -153,10 +153,11 @@
 			<div class="bread">
 				<ul class="fl sui-breadcrumb">
 					<li>
-						<a href="#">全部结果</a>
+						<a href="#">搜索条件:</a>
 					</li>					
 				</ul>
 				<ul class="tags-choose">
+					<li class="tag">搜索结果:{{resultMap.total}}</li>
 					<li class="tag" ng-if="searchMap.category !=''">商品分类:{{searchMap.category}}<i class="sui-icon icon-tb-close" ng-click="removeSeachItem('category')"></i></li>
 					<li class="tag" ng-if="searchMap.brand !=''">品牌:{{searchMap.brand}}<i class="sui-icon icon-tb-close" ng-click="removeSeachItem('brand')"></i></li>
 					<li class="tag" ng-repeat="(key,value) in searchMap.spec">{{key}}:{{value}}<i class="sui-icon icon-tb-close" ng-click="removeSeachItem(key)"></i></li>
@@ -175,7 +176,7 @@
 					</div>
 					<div class="fl ext"></div>
 				</div>
-				<div class="type-wrap logo" ng-if="resultMap.brandList != null && searchMap.brand == ''">
+				<div class="type-wrap logo" ng-if="resultMap.brandList != null && searchMap.brand == '' && findKeywordsConditionBrand()==false">
 					<div class="fl key brand">品牌</div>
 					<div class="value logos">
 						<ul class="logo-list">
@@ -275,20 +276,23 @@
 				<div class="sui-navbar">
 					<div class="navbar-inner filter">
 						<ul class="sui-nav">
-							<li class="active">
-								<a href="#">综合</a>
+							<li class="{{$scope.searchMap.field==''?'active':''}}">
+								<a href="#" ng-click="sortForFeild('','')">综合</a>
 							</li>
 							<li>
 								<a href="#">销量</a>
 							</li>
-							<li>
-								<a href="#">新品</a>
+							<li class="{{$scope.searchMap.field=='updateTime'?'active':''}}">
+								<a href="#" ng-click="sortForFeild('DESC','updatetime')">新品</a>
 							</li>
 							<li>
 								<a href="#">评价</a>
 							</li>
-							<li>
-								<a href="#">价格</a>
+							<li class="{{($scope.searchMap.field=='price' && $scope.searchMap.sort=='ASC')?'active':''}}">
+								<a href="#" ng-click="sortForFeild('ASC','price')">价格↑</a>
+							</li>
+							<li class="{{($scope.searchMap.field=='price' && $scope.searchMap.sort=='DESC')?'active':''}}">
+								<a href="#" ng-click="sortForFeild('DESC','price')">价格↓</a>
 							</li>
 						</ul>
 					</div>
