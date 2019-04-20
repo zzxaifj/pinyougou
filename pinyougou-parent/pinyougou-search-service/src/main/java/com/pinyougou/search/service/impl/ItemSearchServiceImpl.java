@@ -101,6 +101,7 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		Object object = searchMap.get("spec");
 		//添加规格
 		if(object!=null) {
+			@SuppressWarnings("unchecked")
 			Map<String, String> map = (Map)searchMap.get("spec");
 			//循环规格对象
 			for(String key:map.keySet()) {
@@ -109,6 +110,29 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 				highlightQuery.addFilterQuery(filterQuery );
 			}
 		}	
+		
+		//根据价格区间查询数据
+		if(!"".equals(searchMap.get("price"))) {
+			//拆分 0-500 
+			String[] prices = ((String) searchMap.get("price")).split("-");
+			
+			//排除 最大价格的特殊情况 大于最小值
+			Criteria priCriteria = new Criteria("item_price").greaterThanEqual(prices[0]);
+			//小于最大值  除了最后一种特殊情况    两边都选等于  是因为希望客户能够多查到  就有多购买的情况 是商家最想看到的  因此两边取等于
+			FilterQuery filterQuery = new SimpleFilterQuery(priCriteria );
+			highlightQuery.addFilterQuery(filterQuery );
+			
+			if( !"*".equals(prices[1])) {
+				Criteria priCriteria1 = new Criteria("item_price").lessThanEqual(prices[1]);
+				FilterQuery filterQuery1 = new SimpleFilterQuery(priCriteria1);
+				highlightQuery.addFilterQuery(filterQuery1);
+			}
+		}
+		
+		//分页查询
+		this.findItemForPage(searchMap, highlightQuery);
+		
+		
 		//查询 solr
 		HighlightPage<TbItem> highlightPage = solrTemplate.queryForHighlightPage(highlightQuery, TbItem.class);
 		
@@ -124,13 +148,41 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 				}
 			}*/
 			//因为我们只有一个域 也不存在多值因此只获取第一个
-			String string = h.getHighlights().get(0).getSnipplets().get(0);
-			item.setTitle(string);
+			String title = h.getHighlights().get(0).getSnipplets().get(0);
+			item.setTitle(title);
 		}
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("rows", highlightPage.getContent());
+		//总记录数
+		map.put("total", highlightPage.getTotalElements());
+		//总页数
+		map.put("totalPage", highlightPage.getTotalPages());
 		return map;
+	}
+
+	/**
+	 * @desc 分页查询  pageNo=offSet其实值 pageSize = rows 每页的个数  
+	 * @auto 创建人：zzx 
+	 * @time 时间：2019年4月20日-上午9:37:45 
+	 * @param searchMap  前台参数
+	 * @param highlightQuery void 后台传入的对象
+	 */
+	private void findItemForPage(Map searchMap, SimpleHighlightQuery highlightQuery) {
+		//分页查询   如果为空或者为0需要赋初始值
+		Integer pageNo = (Integer) searchMap.get("pageNo");
+		Integer pageSize = (Integer) searchMap.get("pageSize");
+		int pageNoInt=1;
+		int pageSizeInt=40;
+		if(pageNo != null && pageNo!=0) {
+			pageNoInt = pageNo;
+		}
+		if(pageSize != null && pageSize!=0) {
+			pageSizeInt = pageSize;
+		}
+		//添加到 solr 分页参数
+		highlightQuery.setOffset((pageNoInt-1)*pageSizeInt);
+		highlightQuery.setRows(pageSizeInt);
 	}
 
 	/**
