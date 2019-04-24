@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
@@ -24,11 +25,14 @@ import entity.Result;
 @RequestMapping("/goods")
 public class GoodsController {
 
-	@Reference
+	@Reference(timeout=100000)
 	private GoodsService goodsService;
 	
-	@Reference
+	@Reference(timeout=100000)
 	private ItemSearchService itemSearchService;
+	
+	@Reference(timeout=100000)
+	private ItemPageService itemPageService;
 	/**
 	 * 返回全部列表
 	 * @return
@@ -147,10 +151,20 @@ public class GoodsController {
 				}
 			}
 			
+			//生成 商品购买页面 模板ftl——>html
+			for(Long goodsId:ids) {
+				itemPageService.genItemHtml(goodsId);
+			}
+			
 			return new Result(true, "审核成功");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new Result(false, "审核失败");
 		}
+	}
+	
+	@RequestMapping("/gene")
+	public void gene(Long id) {
+		itemPageService.genItemHtml(id);
 	}
 }
