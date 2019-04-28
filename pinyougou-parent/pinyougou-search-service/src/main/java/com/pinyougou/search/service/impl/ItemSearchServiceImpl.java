@@ -267,7 +267,8 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 
 	@Override
 	public void deleteByGoodsIds(Long[] ids) {
-		Criteria criteria=new Criteria("item_goodsid").in(ids);
+		List<Long> asList = Arrays.asList(ids);
+		Criteria criteria=new Criteria("item_goodsid").in(asList);
 		Query query = new SimpleQuery(criteria);
 		solrTemplate.delete(query );
 		solrTemplate.commit();

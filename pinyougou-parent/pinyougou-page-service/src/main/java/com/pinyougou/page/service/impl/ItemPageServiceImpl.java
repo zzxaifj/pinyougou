@@ -1,16 +1,18 @@
 package com.pinyougou.page.service.impl;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.mapper.TbGoodsDescMapper;
 import com.pinyougou.mapper.TbGoodsMapper;
 import com.pinyougou.mapper.TbItemCatMapper;
@@ -19,7 +21,6 @@ import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbGoodsDesc;
 import com.pinyougou.pojo.TbItem;
-import com.pinyougou.pojo.TbItemCat;
 import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.pojo.TbItemExample.Criteria;
 
@@ -91,6 +92,26 @@ public class ItemPageServiceImpl implements ItemPageService{
 			e.printStackTrace();
 		} 
 		return false;
+	}
+
+
+	@Override
+	public boolean delItemHtml(Long[] ids) {
+		//进行删除
+		try {
+			List<Long> goodsId = Arrays.asList(ids);
+			for(Long id : goodsId) {
+				//获取文件进行删除
+				File file = new File(pagedir+id+".html");
+				if(file != null) {
+					file.delete();
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }
