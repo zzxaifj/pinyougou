@@ -34,7 +34,7 @@ import entity.PageResult;
  * @author Administrator
  *
  */
-@Service
+@Service(timeout=100000)
 public class UserServiceImpl implements UserService {
 
 	@Autowired
