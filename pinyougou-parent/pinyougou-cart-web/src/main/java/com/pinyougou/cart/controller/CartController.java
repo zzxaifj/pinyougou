@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +38,7 @@ public class CartController {
 	private static String ENCODE="UTF-8";
 	
 	@RequestMapping("/addGoodsToCartList")
+	@CrossOrigin(origins="http://localhost:9105")
 	public Result addGoodsToCartList(Long itemId , Integer num) {
 		//得到登陆人账号,判断当前是否有人登陆
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();

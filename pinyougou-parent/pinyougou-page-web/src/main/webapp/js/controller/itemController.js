@@ -1,4 +1,4 @@
-app.controller('itemController' ,function($scope){
+app.controller('itemController' ,function($scope,itemService){
 	$scope.add=function(num){
 		$scope.num+=num;
 		if($scope.num <= 1){
@@ -31,7 +31,13 @@ app.controller('itemController' ,function($scope){
 
 	//添加到购物车
 	$scope.addToCar = function(){
-		alert('skuid:'+$scope.sku.id);	
+		itemService.addToCart($scope.sku.id,$scope.num).success(function(res){
+			if(res.success){
+				location.href="http://localhost:9107/cart.html";//跳转至购物车页面
+			}else{
+				alert(res.message);
+			}
+		});
 	}
 	
 	//查询 SKU
